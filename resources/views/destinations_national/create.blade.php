@@ -6,15 +6,24 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Créer une Destination Nationale</h1>
-        <a href="{{ route('destinations_national.index') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Retour à la liste
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-globe text-success me-2"></i>
+                Créer une Destination Nationale
+            </h1>
+            <p class="text-muted mb-0">Ajouter une nouvelle destination de transport national</p>
+        </div>
+        <a href="{{ route('destinations_national.index') }}" class="btn btn-outline-secondary btn-lg shadow-sm">
+            <i class="bi bi-arrow-left me-2"></i> Retour à la liste
         </a>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulaire de création de destination nationale</h6>
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-success text-white py-3">
+            <h6 class="m-0 font-weight-bold d-flex align-items-center">
+                <i class="bi bi-map me-2"></i>
+                Formulaire de création de destination nationale
+            </h6>
         </div>
         <div class="card-body">
             <form action="{{ route('destinations_national.store') }}" method="POST">
@@ -54,7 +63,12 @@
                     <div class="col-md-6 mb-3">
                         <label for="depart" class="form-label">Lieu de départ <span class="text-danger">*</span></label>
                         <select class="form-select @error('depart') is-invalid @enderror" name="depart" id="depart" required>
-                            <option value="" selected disabled>Chargement des lieux...</option>
+                            <option value="" selected disabled>Sélectionnez un lieu de départ</option>
+                            @foreach($lieux_depart as $lieu)
+                                <option value="{{ $lieu->id }}" {{ old('depart') == $lieu->id ? 'selected' : '' }}>
+                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}{{ $lieu->region ? ' (' . $lieu->region . ')' : '' }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('depart')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -65,7 +79,12 @@
                     <div class="col-md-6 mb-3">
                         <label for="arrive" class="form-label">Lieu d'arrivée <span class="text-danger">*</span></label>
                         <select class="form-select @error('arrive') is-invalid @enderror" name="arrive" id="arrive" required>
-                            <option value="" selected disabled>Chargement des lieux...</option>
+                            <option value="" selected disabled>Sélectionnez un lieu d'arrivée</option>
+                            @foreach($lieux_arrive as $lieu)
+                                <option value="{{ $lieu->id }}" {{ old('arrive') == $lieu->id ? 'selected' : '' }}>
+                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}{{ $lieu->region ? ' (' . $lieu->region . ')' : '' }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('arrive')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -150,17 +169,13 @@
         // Chargement des gares en fonction de la société
         const societeSelect = document.getElementById('societe_id');
         const gareSelect = document.getElementById('gare_depart');
-        const departSelect = document.getElementById('depart');
-        const arriveSelect = document.getElementById('arrive');
 
         societeSelect.addEventListener('change', function() {
             const societeId = this.value;
             if (!societeId) return;
 
-            // Réinitialiser les sélecteurs
+            // Réinitialiser le sélecteur de gares
             gareSelect.innerHTML = '<option value="" selected disabled>Chargement des gares...</option>';
-            departSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une gare</option>';
-            arriveSelect.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord une gare</option>';
 
             // Charger les gares de la société
             fetch(`/api/societes/${societeId}/gares`)
@@ -173,63 +188,19 @@
                         option.textContent = gare.nom_gare;
                         gareSelect.appendChild(option);
                     });
+                    
+                    // Restaurer la valeur sélectionnée si présente
+                    const previousValue = "{{ old('gare_depart') }}";
+                    if (previousValue) {
+                        gareSelect.value = previousValue;
+                    }
                 })
                 .catch(error => console.error('Erreur lors du chargement des gares:', error));
-        });
-
-        // Chargement des lieux de départ et d'arrivée
-        gareSelect.addEventListener('change', function() {
-            if (!this.value) return;
-
-            // Réinitialiser les sélecteurs
-            departSelect.innerHTML = '<option value="" selected disabled>Chargement des lieux...</option>';
-            arriveSelect.innerHTML = '<option value="" selected disabled>Chargement des lieux...</option>';
-
-            // Charger les lieux
-            fetch('/api/gares-lieux')
-                .then(response => response.json())
-                .then(data => {
-                    // Lieux de départ
-                    departSelect.innerHTML = '<option value="" selected disabled>Sélectionnez un lieu de départ</option>';
-                    data.depart.forEach(lieu => {
-                        const option = document.createElement('option');
-                        option.value = lieu.id;
-                        option.textContent = lieu.ville + (lieu.commune ? ' - ' + lieu.commune : '');
-                        departSelect.appendChild(option);
-                    });
-
-                    // Lieux d'arrivée
-                    arriveSelect.innerHTML = '<option value="" selected disabled>Sélectionnez un lieu d\'arrivée</option>';
-                    data.arrive.forEach(lieu => {
-                        const option = document.createElement('option');
-                        option.value = lieu.id;
-                        option.textContent = lieu.ville + (lieu.commune ? ' - ' + lieu.commune : '');
-                        arriveSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Erreur lors du chargement des lieux:', error));
         });
 
         // Si une société est déjà sélectionnée (en cas d'erreur de validation)
         if (societeSelect.value) {
             societeSelect.dispatchEvent(new Event('change'));
-            
-            // Si une gare est déjà sélectionnée
-            setTimeout(() => {
-                const gareId = "{{ old('gare_depart') }}";
-                if (gareId) {
-                    gareSelect.value = gareId;
-                    gareSelect.dispatchEvent(new Event('change'));
-                    
-                    // Si un lieu de départ et d'arrivée sont déjà sélectionnés
-                    setTimeout(() => {
-                        const departId = "{{ old('depart') }}";
-                        const arriveId = "{{ old('arrive') }}";
-                        if (departId) departSelect.value = departId;
-                        if (arriveId) arriveSelect.value = arriveId;
-                    }, 500);
-                }
-            }, 500);
         }
     });
 </script>

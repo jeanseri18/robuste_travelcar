@@ -11,12 +11,14 @@ class Lieu extends Model
 
     protected $table='lieux';
     protected $fillable = [
+        'pays',
         'ville',
         'commune',
         'region',
         'departement',
         'sous_prefecture',
         'type',
+        'typedestination',
         'est_actif'
     ];
 

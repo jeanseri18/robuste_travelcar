@@ -33,8 +33,11 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h5>Côte d'Ivoire → {{ $destination->pays_destination }}</h5>
-                        <p class="text-muted">{{ $destination->ville_destination }}</p>
+                        <h5>{{ $destination->pays_depart ?? 'Côte d\'Ivoire' }} → {{ $destination->pays_destination }}</h5>
+                        <p class="text-muted">
+                            <strong>Départ:</strong> {{ $destination->ville_depart ?? 'Non spécifié' }} <br>
+                            <strong>Destination:</strong> {{ $destination->ville_destination }}
+                        </p>
                         
                         @if($destination->est_actif)
                             <span class="badge bg-success">Destination active</span>
@@ -47,6 +50,17 @@
                     
                     <div class="mb-4">
                         <h6 class="font-weight-bold">Détails du trajet</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Pays de départ:</strong><br>
+                                <span class="text-muted">{{ $destination->pays_depart ?? 'Non spécifié' }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Ville de départ:</strong><br>
+                                <span class="text-muted">{{ $destination->ville_depart ?? 'Non spécifié' }}</span>
+                            </div>
+                        </div>
+                        <hr>
                         <p>
                             <strong>Société:</strong> 
                             <a href="{{ route('societes.show', $destination->societe->id) }}">

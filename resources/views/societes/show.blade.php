@@ -6,13 +6,19 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Détails de la Société</h1>
         <div>
-            <a href="{{ route('societes.edit', $societe->id) }}" class="btn btn-warning">
-                <i class="bi bi-pencil"></i> Modifier
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-building text-primary me-2"></i>
+                Détails de la Société
+            </h1>
+            <p class="text-muted mb-0">Informations complètes sur {{ $societe->nom_commercial }}</p>
+        </div>
+        <div>
+            <a href="{{ route('societes.edit', $societe->id) }}" class="btn btn-outline-warning btn-lg shadow-sm me-2">
+                <i class="bi bi-pencil me-2"></i> Modifier
             </a>
-            <a href="{{ route('societes.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Retour à la liste
+            <a href="{{ route('societes.index') }}" class="btn btn-outline-secondary btn-lg shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i> Retour à la liste
             </a>
         </div>
     </div>
@@ -27,9 +33,12 @@
     <div class="row">
         <!-- Informations générales -->
         <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Informations de la Société</h6>
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="m-0 font-weight-bold d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Informations de la Société
+                    </h6>
                 </div>
                 <div class="card-body text-center mb-3">
                     @if($societe->logo)

@@ -156,5 +156,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 Route::middleware(['auth'])->prefix('api')->group(function () {
     Route::get('societes/{societe}/gares', [SocieteController::class, 'getGares'])->name('api.societes.gares');
     Route::get('gares-lieux', [LieuController::class, 'getLieux'])->name('api.gares.lieux');
+ 
     Route::get('destinations/{type}/{societe}', [LigneSousTraitantController::class, 'getDestinations'])->name('api.destinations');
 });
+
+
+   Route::get('api/lieux-depart-national', [LieuController::class, 'getLieuxDepartNational'])->name('api.lieux.depart.national');
+    Route::get('api/lieux-arrive-national', [LieuController::class, 'getLieuxArriveNational'])->name('api.lieux.arrive.national');
+    Route::get('api/lieux-depart-sousregion', [LieuController::class, 'getLieuxDepartSousRegion'])->name('api.lieux.depart.sousregion');
+    Route::get('api/lieux-arrive-sousregion', [LieuController::class, 'getLieuxArriveSousRegion'])->name('api.lieux.arrive.sousregion');
+    Route::get('api/lieux-by-type/{typeDestination}', [LieuController::class, 'getLieuxByTypeDestination'])->name('api.lieux.by.type');
+    Route::get('api/lieux/villes-par-pays/{pays}', [LieuController::class, 'getVillesParPays'])->name('api.lieux.villes.par.pays');
+    Route::get('api/lieux/details', [LieuController::class, 'getLieuDetails'])->name('api.lieux.details');

@@ -6,20 +6,29 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Modifier une Destination Nationale</h1>
         <div>
-            <a href="{{ route('destinations_national.show', $destination->id) }}" class="btn btn-info">
-                <i class="bi bi-eye"></i> Voir détails
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-map text-success me-2"></i>
+                Modifier une Destination Nationale
+            </h1>
+            <p class="text-muted mb-0">Modifiez les informations de la destination nationale sélectionnée</p>
+        </div>
+        <div>
+            <a href="{{ route('destinations_national.show', $destination->id) }}" class="btn btn-outline-info me-2">
+                <i class="bi bi-eye me-1"></i> Voir détails
             </a>
-            <a href="{{ route('destinations_national.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Retour à la liste
+            <a href="{{ route('destinations_national.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
             </a>
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulaire de modification de destination nationale</h6>
+    <div class="card shadow-lg mb-4 border-0">
+        <div class="card-header bg-gradient-success py-3">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="bi bi-form me-2"></i>
+                Formulaire de modification de destination nationale
+            </h6>
         </div>
         <div class="card-body">
             <form action="{{ route('destinations_national.update', $destination->id) }}" method="POST">
@@ -65,7 +74,7 @@
                         <select class="form-select @error('depart') is-invalid @enderror" name="depart" id="depart" required>
                             @foreach($lieux_depart as $lieu)
                                 <option value="{{ $lieu->id }}" {{ old('depart', $destination->depart) == $lieu->id ? 'selected' : '' }}>
-                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}
+                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}{{ $lieu->region ? ' (' . $lieu->region . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -80,7 +89,7 @@
                         <select class="form-select @error('arrive') is-invalid @enderror" name="arrive" id="arrive" required>
                             @foreach($lieux_arrive as $lieu)
                                 <option value="{{ $lieu->id }}" {{ old('arrive', $destination->arrive) == $lieu->id ? 'selected' : '' }}>
-                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}
+                                    {{ $lieu->ville }}{{ $lieu->commune ? ' - ' . $lieu->commune : '' }}{{ $lieu->region ? ' (' . $lieu->region . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -198,40 +207,8 @@
                 .catch(error => console.error('Erreur lors du chargement des gares:', error));
         });
 
-        // Charger les lieux
-        gareSelect.addEventListener('change', function() {
-            if (!this.value) return;
-
-            // Charger les lieux
-            fetch('/api/gares-lieux')
-                .then(response => response.json())
-                .then(data => {
-                    // Lieux de départ
-                    departSelect.innerHTML = '<option value="" selected disabled>Sélectionnez un lieu de départ</option>';
-                    data.depart.forEach(lieu => {
-                        const option = document.createElement('option');
-                        option.value = lieu.id;
-                        option.textContent = lieu.ville + (lieu.commune ? ' - ' + lieu.commune : '');
-                        departSelect.appendChild(option);
-                    });
-                    
-                    // Lieux d'arrivée
-                    arriveSelect.innerHTML = '<option value="" selected disabled>Sélectionnez un lieu d\'arrivée</option>';
-                    data.arrive.forEach(lieu => {
-                        const option = document.createElement('option');
-                        option.value = lieu.id;
-                        option.textContent = lieu.ville + (lieu.commune ? ' - ' + lieu.commune : '');
-                        arriveSelect.appendChild(option);
-                    });
-                    
-                    // Restaurer les valeurs sélectionnées si présentes
-                    const previousDepart = "{{ old('depart', $destination->depart) }}";
-                    const previousArrive = "{{ old('arrive', $destination->arrive) }}";
-                    if (previousDepart) departSelect.value = previousDepart;
-                    if (previousArrive) arriveSelect.value = previousArrive;
-                })
-                .catch(error => console.error('Erreur lors du chargement des lieux:', error));
-        });
+        // Les lieux sont maintenant chargés directement depuis le contrôleur
+        // Pas besoin de JavaScript supplémentaire pour les lieux
 
         // Déclencher le chargement initial si nécessaire
         if (societeSelect.value && !window.initialLoadDone) {

@@ -6,20 +6,29 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Modifier un Lieu</h1>
         <div>
-            <a href="{{ route('lieux.show', $lieu->id) }}" class="btn btn-info">
-                <i class="bi bi-eye"></i> Voir détails
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-pencil-square text-warning me-2"></i>
+                Modifier un Lieu
+            </h1>
+            <p class="text-muted mb-0">Modifiez les informations du lieu sélectionné</p>
+        </div>
+        <div>
+            <a href="{{ route('lieux.show', $lieu->id) }}" class="btn btn-outline-info me-2">
+                <i class="bi bi-eye me-1"></i> Voir détails
             </a>
-            <a href="{{ route('lieux.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Retour à la liste
+            <a href="{{ route('lieux.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
             </a>
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulaire de modification de lieu</h6>
+    <div class="card shadow-lg mb-4 border-0">
+        <div class="card-header bg-gradient-warning py-3">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="bi bi-form me-2"></i>
+                Formulaire de modification de lieu
+            </h6>
         </div>
         <div class="card-body">
             <form action="{{ route('lieux.update', $lieu->id) }}" method="POST">

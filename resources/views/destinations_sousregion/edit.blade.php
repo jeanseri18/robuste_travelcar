@@ -6,20 +6,29 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Modifier une Destination Sous-régionale</h1>
         <div>
-            <a href="{{ route('destinations_sousregion.show', $destination->id) }}" class="btn btn-info">
-                <i class="bi bi-eye"></i> Voir détails
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                Modifier une Destination Sous-régionale
+            </h1>
+            <p class="text-muted mb-0">Modifiez les informations de la destination sélectionnée</p>
+        </div>
+        <div>
+            <a href="{{ route('destinations_sousregion.show', $destination->id) }}" class="btn btn-outline-info me-2">
+                <i class="bi bi-eye me-1"></i> Voir détails
             </a>
-            <a href="{{ route('destinations_sousregion.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Retour à la liste
+            <a href="{{ route('destinations_sousregion.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
             </a>
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulaire de modification de destination sous-régionale</h6>
+    <div class="card shadow-lg mb-4 border-0">
+        <div class="card-header bg-gradient-danger py-3">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="bi bi-form me-2"></i>
+                Formulaire de modification de destination sous-régionale
+            </h6>
         </div>
         <div class="card-body">
             <form action="{{ route('destinations_sousregion.update', $destination->id) }}" method="POST">
@@ -59,6 +68,35 @@
                 </div>
 
                 <div class="row">
+                    <!-- Pays de départ -->
+                    <div class="col-md-6 mb-3">
+                        <label for="pays_depart" class="form-label">Pays de départ <span class="text-danger">*</span></label>
+                        <select class="form-select @error('pays_depart') is-invalid @enderror" name="pays_depart" id="pays_depart" required>
+                            <option value="" disabled>Sélectionnez un pays</option>
+                            @foreach($pays as $p)
+                                <option value="{{ $p }}" {{ old('pays_depart', $destination->pays_depart) == $p ? 'selected' : '' }}>
+                                    {{ $p }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pays_depart')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Ville de départ -->
+                    <div class="col-md-6 mb-3">
+                        <label for="ville_depart" class="form-label">Ville de départ <span class="text-danger">*</span></label>
+                        <select class="form-select @error('ville_depart') is-invalid @enderror" name="ville_depart" id="ville_depart" required>
+                            <option value="" disabled>Sélectionnez d'abord un pays</option>
+                        </select>
+                        @error('ville_depart')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row">
                     <!-- Pays de destination -->
                     <div class="col-md-6 mb-3">
                         <label for="pays_destination" class="form-label">Pays de destination <span class="text-danger">*</span></label>
@@ -77,11 +115,20 @@
                     <!-- Ville de destination -->
                     <div class="col-md-6 mb-3">
                         <label for="ville_destination" class="form-label">Ville de destination <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ville_destination') is-invalid @enderror" name="ville_destination" id="ville_destination" value="{{ old('ville_destination', $destination->ville_destination) }}" required>
+                        <select class="form-select @error('ville_destination') is-invalid @enderror" name="ville_destination" id="ville_destination" required>
+                            <option value="" selected disabled>Chargement des villes...</option>
+                        </select>
+                        <div class="form-text">Les villes sont chargées automatiquement selon le pays sélectionné</div>
                         @error('ville_destination')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+
+                <!-- Informations du lieu sélectionné -->
+                <div id="lieu-info" class="alert alert-info" style="display: none;">
+                    <h6><i class="bi bi-info-circle"></i> Informations du lieu</h6>
+                    <div id="lieu-details"></div>
                 </div>
 
                 <!-- Adresse de destination -->
@@ -170,6 +217,10 @@
         // Chargement des gares en fonction de la société
         const societeSelect = document.getElementById('societe_id');
         const gareSelect = document.getElementById('gare_depart');
+        const paysDepartSelect = document.getElementById('pays_depart');
+        const villeDepartSelect = document.getElementById('ville_depart');
+        const paysSelect = document.getElementById('pays_destination');
+        const villeSelect = document.getElementById('ville_destination');
 
         societeSelect.addEventListener('change', function() {
             const societeId = this.value;
@@ -204,6 +255,141 @@
             window.initialLoadDone = true;
             societeSelect.dispatchEvent(new Event('change'));
         }
+
+        // Gestion dynamique des villes
+        const lieuInfo = document.getElementById('lieu-info');
+        const lieuDetails = document.getElementById('lieu-details');
+
+        // Fonction générique pour charger les villes en fonction du pays et du type
+        function chargerVilles(paysSelectElement, villeSelectElement, type = null, villeSelectionnee = null, afficherLieuInfo = false) {
+            const pays = paysSelectElement.value;
+            if (!pays) {
+                villeSelectElement.innerHTML = '<option value="" selected disabled>Sélectionnez d\'abord un pays</option>';
+                return;
+            }
+
+            // Réinitialiser le sélecteur de ville
+            villeSelectElement.innerHTML = '<option value="" selected disabled>Chargement des villes...</option>';
+            if (afficherLieuInfo && lieuInfo) {
+                lieuInfo.style.display = 'none';
+            }
+
+            // Construire l'URL avec le paramètre type si spécifié
+            let url = `/api/lieux/villes-par-pays/${encodeURIComponent(pays)}`;
+            if (type) {
+                url += `?type=${type}`;
+            }
+
+            // Charger les villes du pays depuis les lieux
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        villeSelectElement.innerHTML = `<option value="" selected disabled>${data.error}</option>`;
+                        return;
+                    }
+                    
+                    villeSelectElement.innerHTML = '<option value="" selected disabled>Sélectionnez une ville</option>';
+                    
+                    if (data.villes && data.villes.length > 0) {
+                        data.villes.forEach(ville => {
+                            const option = document.createElement('option');
+                            option.value = ville;
+                            option.textContent = ville;
+                            if (villeSelectionnee && ville === villeSelectionnee) {
+                                option.selected = true;
+                            }
+                            villeSelectElement.appendChild(option);
+                        });
+                        
+                        // Si une ville était présélectionnée et qu'on doit afficher les infos du lieu
+                        if (villeSelectionnee && afficherLieuInfo) {
+                            // Attendre un peu que l'option soit sélectionnée
+                            setTimeout(() => {
+                                if (villeSelectElement.value === villeSelectionnee) {
+                                    afficherInfosLieu(pays, villeSelectionnee);
+                                }
+                            }, 100);
+                        }
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Aucune ville trouvée pour ce pays';
+                        option.disabled = true;
+                        villeSelectElement.appendChild(option);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des villes:', error);
+                    villeSelectElement.innerHTML = '<option value="" selected disabled>Erreur de chargement des villes</option>';
+                });
+        }
+
+        // Chargement des villes de départ en fonction du pays de départ
+        paysDepartSelect.addEventListener('change', function() {
+            chargerVilles(paysDepartSelect, villeDepartSelect, 'depart');
+        });
+
+        // Chargement initial des villes de départ si un pays est déjà sélectionné
+        if (paysDepartSelect.value) {
+            const villeSelectionnee = "{{ old('ville_depart', $destination->ville_depart) }}";
+            chargerVilles(paysDepartSelect, villeDepartSelect, 'depart', villeSelectionnee);
+        }
+
+        // Chargement des villes de destination en fonction du pays de destination
+        paysSelect.addEventListener('change', function() {
+            chargerVilles(paysSelect, villeSelect, 'arrive', null, true);
+        });
+
+        // Chargement initial des villes de destination si un pays est déjà sélectionné
+        if (paysSelect.value) {
+            const villeSelectionnee = "{{ old('ville_destination', $destination->ville_destination) }}";
+            chargerVilles(paysSelect, villeSelect, 'arrive', villeSelectionnee, true);
+        }
+
+        // Gestion des informations du lieu pour la destination
+
+        // Fonction pour afficher les informations du lieu
+        function afficherInfosLieu(pays, ville) {
+            if (!pays || !ville || !lieuInfo || !lieuDetails) {
+                if (lieuInfo) lieuInfo.style.display = 'none';
+                return;
+            }
+
+            fetch(`/api/lieux/details?pays=${encodeURIComponent(pays)}&ville=${encodeURIComponent(ville)}`)
+                .then(response => response.json())
+                .then(lieu => {
+                    if (lieu) {
+                        lieuDetails.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-3"><strong>Ville:</strong> ${lieu.ville}</div>
+                                <div class="col-md-3"><strong>Pays:</strong> ${lieu.pays}</div>
+                                <div class="col-md-3"><strong>Région:</strong> ${lieu.region || 'Non spécifiée'}</div>
+                                <div class="col-md-3"><strong>Type:</strong> ${lieu.type || 'Non spécifié'}</div>
+                            </div>
+                        `;
+                        lieuInfo.style.display = 'block';
+                    } else {
+                        lieuInfo.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des détails du lieu:', error);
+                    lieuInfo.style.display = 'none';
+                });
+        }
+
+        // Événement pour afficher les informations du lieu de destination
+        villeSelect.addEventListener('change', function() {
+            const pays = paysSelect.value;
+            const ville = this.value;
+            afficherInfosLieu(pays, ville);
+        });
     });
 </script>
 @endpush

@@ -6,15 +6,24 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Créer un Lieu</h1>
-        <a href="{{ route('lieux.index') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Retour à la liste
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-plus-circle text-success me-2"></i>
+                Créer un Lieu
+            </h1>
+            <p class="text-muted mb-0">Ajouter une nouvelle ville ou destination</p>
+        </div>
+        <a href="{{ route('lieux.index') }}" class="btn btn-outline-secondary btn-lg shadow-sm">
+            <i class="bi bi-arrow-left me-2"></i> Retour à la liste
         </a>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulaire de création de lieu</h6>
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-primary  text-white py-3">
+            <h6 class="m-0 font-weight-bold d-flex align-items-center">
+                <i class="bi bi-geo-alt-fill me-2"></i>
+                Formulaire de création de lieu
+            </h6>
         </div>
         <div class="card-body">
             <form action="{{ route('lieux.store') }}" method="POST">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\VoyageurAuthController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaiementController;
 use App\Http\Controllers\Api\DestinationController;
+use App\Http\Controllers\LieuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/companies', [DestinationController::class, 'companies']);
     Route::get('/companies/{id}', [DestinationController::class, 'companyDetails']);
     Route::get('/locations', [DestinationController::class, 'locations']);
+    
+    // Lieux API routes
+    Route::get('/lieux/villes-par-pays/{pays}', [LieuController::class, 'getVillesParPays']);
+    Route::get('/lieux/details', [LieuController::class, 'getLieuDetails']);
 });
 
 // Protected routes

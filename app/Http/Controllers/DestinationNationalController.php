@@ -27,7 +27,24 @@ class DestinationNationalController extends Controller
     public function create()
     {
         $societes = Societe::orderBy('nom_commercial')->get();
-        return view('destinations_national.create', compact('societes'));
+        $lieux_depart = Lieu::where('typedestination', 'national')
+                           ->where(function($query) {
+                               $query->where('type', 'depart')
+                                     ->orWhere('type', 'les_deux');
+                           })
+                           ->where('est_actif', true)
+                           ->orderBy('ville')
+                           ->get();
+        $lieux_arrive = Lieu::where('typedestination', 'national')
+                           ->where(function($query) {
+                               $query->where('type', 'arrive')
+                                     ->orWhere('type', 'les_deux');
+                           })
+                           ->where('est_actif', true)
+                           ->orderBy('ville')
+                           ->get();
+        
+        return view('destinations_national.create', compact('societes', 'lieux_depart', 'lieux_arrive'));
     }
 
     /**
@@ -68,8 +85,22 @@ class DestinationNationalController extends Controller
     {
         $societes = Societe::orderBy('nom_commercial')->get();
         $gares = Gare::where('societe_id', $destinationsNational->societe_id)->get();
-        $lieux_depart = Lieu::where('type', 'depart')->orWhere('type', 'les_deux')->get();
-        $lieux_arrive = Lieu::where('type', 'arrive')->orWhere('type', 'les_deux')->get();
+        $lieux_depart = Lieu::where('typedestination', 'national')
+                           ->where(function($query) {
+                               $query->where('type', 'depart')
+                                     ->orWhere('type', 'les_deux');
+                           })
+                           ->where('est_actif', true)
+                           ->orderBy('ville')
+                           ->get();
+        $lieux_arrive = Lieu::where('typedestination', 'national')
+                           ->where(function($query) {
+                               $query->where('type', 'arrive')
+                                     ->orWhere('type', 'les_deux');
+                           })
+                           ->where('est_actif', true)
+                           ->orderBy('ville')
+                           ->get();
         
         return view('destinations_national.edit', [
             'destination' => $destinationsNational,

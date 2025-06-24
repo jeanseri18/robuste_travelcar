@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DestinationSousRegion;
 use App\Models\Societe;
 use App\Models\Gare;
+use App\Models\Lieu;
 use Illuminate\Http\Request;
 
 class DestinationSousRegionController extends Controller
@@ -38,6 +39,8 @@ class DestinationSousRegionController extends Controller
         $request->validate([
             'societe_id' => 'required|exists:societes,id',
             'gare_depart' => 'required|exists:gares,id',
+            'pays_depart' => 'required|string|max:255',
+            'ville_depart' => 'required|string|max:255',
             'pays_destination' => 'required|string|max:255',
             'ville_destination' => 'required|string|max:255',
             'adresse_destination' => 'nullable|string|max:255',
@@ -87,6 +90,8 @@ class DestinationSousRegionController extends Controller
         $request->validate([
             'societe_id' => 'required|exists:societes,id',
             'gare_depart' => 'required|exists:gares,id',
+            'pays_depart' => 'required|string|max:255',
+            'ville_depart' => 'required|string|max:255',
             'pays_destination' => 'required|string|max:255',
             'ville_destination' => 'required|string|max:255',
             'adresse_destination' => 'nullable|string|max:255',
@@ -115,25 +120,16 @@ class DestinationSousRegionController extends Controller
     }
 
     /**
-     * Liste des pays de la sous-région
+     * Liste des pays de la sous-région disponibles dans la base de données
      */
     private function getPaysSousRegion()
     {
-        return [
-            'Bénin',
-            'Burkina Faso',
-            'Cap-Vert',
-            'Gambie',
-            'Ghana',
-            'Guinée',
-            'Guinée-Bissau',
-            'Libéria',
-            'Mali',
-            'Niger',
-            'Nigéria',
-            'Sénégal',
-            'Sierra Leone',
-            'Togo'
-        ];
+        return Lieu::where('typedestination', 'sousregion')
+                   ->where('est_actif', true)
+                   ->distinct()
+                   ->pluck('pays')
+                   ->sort()
+                   ->values()
+                   ->toArray();
     }
 }

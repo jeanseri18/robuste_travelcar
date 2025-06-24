@@ -14,6 +14,8 @@ class DestinationSousRegion extends Model
     protected $fillable = [
         'societe_id',
         'gare_depart',
+        'pays_depart',
+        'ville_depart',
         'pays_destination',
         'ville_destination',
         'adresse_destination',

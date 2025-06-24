@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Bénin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test API Lieux - Problème Bénin</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Récupération des pays</h2>
+        <button onclick="testGetPays()">Tester GET /api/lieux/pays-sousregion</button>
+        <div id="result-pays" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Villes pour Bénin (encodé)</h2>
+        <button onclick="testGetVillesBenin()">Tester GET /api/lieux/villes-par-pays/Bénin</button>
+        <div id="result-benin" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Villes pour Bénin (encodé manuellement)</h2>
+        <button onclick="testGetVillesBeninEncoded()">Tester GET /api/lieux/villes-par-pays/B%C3%A9nin</button>
+        <div id="result-benin-encoded" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Détails lieu Bénin</h2>
+        <button onclick="testGetLieuDetails()">Tester GET /api/lieux/details?pays=Bénin&ville=Cotonou</button>
+        <div id="result-details" class="result"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://127.0.0.1:8000';
+
+        async function testGetPays() {
+            const resultDiv = document.getElementById('result-pays');
+            resultDiv.textContent = 'Chargement...';
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/lieux/pays-sousregion`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `Succès (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Erreur (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Erreur réseau: ${error.message}`;
+            }
+        }
+
+        async function testGetVillesBenin() {
+            const resultDiv = document.getElementById('result-benin');
+            resultDiv.textContent = 'Chargement...';
+            
+            try {
+                const url = `${baseUrl}/api/lieux/villes-par-pays/${encodeURIComponent('Bénin')}`;
+                console.log('URL appelée:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `Succès (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Erreur (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Erreur réseau: ${error.message}`;
+            }
+        }
+
+        async function testGetVillesBeninEncoded() {
+            const resultDiv = document.getElementById('result-benin-encoded');
+            resultDiv.textContent = 'Chargement...';
+            
+            try {
+                const url = `${baseUrl}/api/lieux/villes-par-pays/B%C3%A9nin`;
+                console.log('URL appelée:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `Succès (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Erreur (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Erreur réseau: ${error.message}`;
+            }
+        }
+
+        async function testGetLieuDetails() {
+            const resultDiv = document.getElementById('result-details');
+            resultDiv.textContent = 'Chargement...';
+            
+            try {
+                const params = new URLSearchParams({
+                    pays: 'Bénin',
+                    ville: 'Cotonou'
+                });
+                const url = `${baseUrl}/api/lieux/details?${params}`;
+                console.log('URL appelée:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `Succès (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Erreur (${response.status}):\nURL: ${url}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Erreur réseau: ${error.message}`;
+            }
+        }
+
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            console.log('Page chargée, tests disponibles');
+        });
+    </script>
+</body>
+</html>
