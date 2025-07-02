@@ -13,9 +13,9 @@
             </h1>
             <p class="text-muted mb-0">Gérez toutes les sociétés de transport partenaires</p>
         </div>
-        <a href="{{ route('societes.create') }}" class="btn btn-primary btn-lg shadow-sm">
+        <!-- <a href="{{ route('societes.create') }}" class="btn btn-primary btn-lg shadow-sm">
             <i class="bi bi-plus-circle me-2"></i> Ajouter une Société
-        </a>
+        </a> -->
     </div>
 
     @if(session('success'))
