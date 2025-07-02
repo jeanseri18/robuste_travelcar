@@ -188,37 +188,12 @@
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <button type="button" 
-                                                class="btn btn-outline-danger btn-sm rounded-pill" 
+                                                class="btn btn-outline-danger btn-sm rounded-pill delete-btn" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteModal{{ $societe->id }}"
                                                 title="Supprimer">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </div>
-
-                                    <!-- Delete Modal -->
-                                    <div class="modal fade" id="deleteModal{{ $societe->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $societe->id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel{{ $societe->id }}">Confirmation de suppression</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-<div class="modal-body">
-                                                    Êtes-vous sûr de vouloir supprimer la société <strong>{{ $societe->nom_commercial }}</strong> ?
-                                                    <br>
-                                                    Cette action est irréversible et supprimera également toutes les gares, destinations et réservations associées.
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    <form action="{{ route('societes.destroy', $societe->id) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -229,6 +204,34 @@
         </div>
     </div>
 </div>
+
+<!-- Modals de suppression -->
+@foreach($societes as $societe)
+    <div class="modal fade" id="deleteModal{{ $societe->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $societe->id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ $societe->id }}">Confirmation de suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer la société <strong>{{ $societe->nom_commercial }}</strong> ?
+                    <br>
+                    Cette action est irréversible et supprimera également toutes les gares, destinations et réservations associées.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ route('societes.destroy', $societe->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
+
 @endsection
 
 <style>
@@ -261,8 +264,28 @@
     transition: all 0.3s ease;
 }
 
+/* Animation normale pour tous les boutons sauf ceux qui déclenchent des modals */
 .btn:hover {
     transform: translateY(-1px);
+}
+
+/* Désactiver l'animation pour les boutons de suppression (modals) */
+.delete-btn:hover {
+    transform: none !important;
+}
+
+/* Assurer la stabilité des modals */
+.modal {
+    position: fixed !important;
+    z-index: 1055 !important;
+}
+
+.modal-dialog {
+    transform: none !important;
+}
+
+.modal-content {
+    transform: none !important;
 }
 
 .badge {

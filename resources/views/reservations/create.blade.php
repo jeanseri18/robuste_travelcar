@@ -23,16 +23,9 @@
                 <div class="row">
                     <!-- Client -->
                     <div class="col-md-6 mb-3">
-                        <label for="user_id" class="form-label">Client <span class="text-danger">*</span></label>
-                        <select class="form-select @error('user_id') is-invalid @enderror" name="user_id" id="user_id" required>
-                            <option value="" selected disabled>Sélectionnez un client</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->nom }} {{ $user->prenom }} ({{ $user->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('user_id')
+                        <label for="nom_client" class="form-label">Nom du Client <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('nom_client') is-invalid @enderror" name="nom_client" id="nom_client" value="{{ old('nom_client') }}" placeholder="Entrez le nom complet du client" required>
+                        @error('nom_client')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -311,30 +304,51 @@
         const typeDestinationSelect = document.getElementById('type_destination');
         const horaireInfo = document.getElementById('horaires_info');
 
+        // Stocker toutes les sociétés pour le filtrage
+        const allSocietes = @json($societes);
+
+        // Filtrer les sociétés selon le type de destination
+        typeDestinationSelect.addEventListener('change', function() {
+            const typeDestination = this.value;
+            
+            // Vider les sélections dépendantes
+            societeSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une société</option>';
+            gareSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une gare</option>';
+            destinationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une destination</option>';
+            
+            // Filtrer et afficher les sociétés correspondantes
+            const filteredSocietes = allSocietes.filter(societe => {
+                return typeDestination === 'national' ? societe.type === 'national' : societe.type === 'sousregional';
+            });
+            
+            filteredSocietes.forEach(societe => {
+                const option = document.createElement('option');
+                option.value = societe.id;
+                option.textContent = societe.nom_commercial;
+                societeSelect.appendChild(option);
+            });
+        });
+
         societeSelect.addEventListener('change', function() {
             const societeId = this.value;
             if (!societeId) return;
 
-            // Vider les sélecteurs de gare et destination
-// Suite du script JavaScript dans reservations/create.blade.php
             // Vider les sélecteurs de gare et destination
             gareSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une gare</option>';
             destinationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une destination</option>';
             tarifUnitaire.value = '';
             calculerTotal();
 
-            // Charger les gares de la société
-            fetch(`/api/societes/${societeId}/gares`)
-                .then(response => response.json())
-                .then(gares => {
-                    gares.forEach(gare => {
-                        const option = document.createElement('option');
-                        option.value = gare.id;
-                        option.textContent = gare.nom_gare;
-                        gareSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Erreur lors du chargement des gares:', error));
+            // Trouver la société sélectionnée et charger ses gares
+            const societeSelectionnee = allSocietes.find(s => s.id == societeId);
+            if (societeSelectionnee && societeSelectionnee.gares) {
+                societeSelectionnee.gares.forEach(gare => {
+                    const option = document.createElement('option');
+                    option.value = gare.id;
+                    option.textContent = gare.nom_gare;
+                    gareSelect.appendChild(option);
+                });
+            }
         });
 
         // Chargement des destinations en fonction de la gare et du type
@@ -348,53 +362,62 @@
             // Vider le sélecteur de destination
             destinationSelect.innerHTML = '<option value="" selected disabled>Sélectionnez une destination</option>';
             tarifUnitaire.value = '';
-            horaireInfo.textContent = '';
             calculerTotal();
 
-            // Charger les destinations
-            fetch(`/api/destinations/${typeDestination}/${societeId}?gare=${gareId}`)
-                .then(response => response.json())
-                .then(destinations => {
-                    destinations.forEach(destination => {
-                        const option = document.createElement('option');
-                        option.value = destination.id;
-                        
-                        if (typeDestination === 'national') {
-                            const departVille = destination.lieu_depart ? destination.lieu_depart.ville : 'N/A';
-                            const arriveVille = destination.lieu_arrive ? destination.lieu_arrive.ville : 'N/A';
-                            option.textContent = `${departVille} → ${arriveVille} (${destination.tarif_unitaire} CFA)`;
-                        } else {
-                            option.textContent = `CDI → ${destination.pays_destination} - ${destination.ville_destination} (${destination.tarif_unitaire} CFA)`;
-                        }
-                        
-                        // Stocker les données supplémentaires comme attributs data-*
-                        option.dataset.tarif = destination.tarif_unitaire;
-                        option.dataset.premierDepart = destination.premier_depart;
-                        option.dataset.dernierDepart = destination.dernier_depart;
-                        
-                        destinationSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Erreur lors du chargement des destinations:', error));
+            // Trouver la société et la gare sélectionnées
+            const societeSelectionnee = allSocietes.find(s => s.id == societeId);
+            if (!societeSelectionnee) return;
+            
+            const gareSelectionnee = societeSelectionnee.gares.find(g => g.id == gareId);
+            if (!gareSelectionnee) return;
+
+            let destinations = [];
+            if (typeDestination === 'national' && gareSelectionnee.destinations_national) {
+                destinations = gareSelectionnee.destinations_national;
+            } else if (typeDestination === 'sousregion' && gareSelectionnee.destinations_sous_region) {
+                destinations = gareSelectionnee.destinations_sous_region;
+            }
+
+            destinations.forEach(destination => {
+                const option = document.createElement('option');
+                option.value = destination.id;
+
+                if (typeDestination === 'national') {
+                    const departVille = destination.lieu_depart ? destination.lieu_depart.ville : 'N/A';
+                    const arriveVille = destination.lieu_arrive ? destination.lieu_arrive.ville : 'N/A';
+                    option.textContent = `${departVille} → ${arriveVille} (${destination.tarif_unitaire} CFA)`;
+                } else {
+                    option.textContent = `${destination.pays_depart}, ${destination.ville_depart} → ${destination.pays_destination}, ${destination.ville_destination} (${destination.tarif_unitaire} CFA)`;
+                }
+
+                option.dataset.tarif = destination.tarif_unitaire;
+                option.dataset.premierDepart = destination.premier_depart;
+                option.dataset.dernierDepart = destination.dernier_depart;
+
+                destinationSelect.appendChild(option);
+            });
         });
 
         // Mise à jour du tarif et des informations d'horaires lors de la sélection d'une destination
         destinationSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             if (!selectedOption.value) return;
-            
-            tarifUnitaire.value = selectedOption.dataset.tarif;
-            
-            // Afficher les informations d'horaires
-            const premierDepart = selectedOption.dataset.premierDepart.substring(0, 5);
-            const dernierDepart = selectedOption.dataset.dernierDepart.substring(0, 5);
-            horaireInfo.textContent = `Horaires disponibles: ${premierDepart} - ${dernierDepart}`;
-            
+
+            const tarif = selectedOption.dataset.tarif;
+            const premierDepart = selectedOption.dataset.premierDepart;
+            const dernierDepart = selectedOption.dataset.dernierDepart;
+
+            tarifUnitaire.value = tarif;
             calculerTotal();
+
+            if (premierDepart && dernierDepart) {
+                horaireInfo.textContent = `Horaires disponibles: ${premierDepart} - ${dernierDepart}`;
+            } else {
+                horaireInfo.textContent = '';
+            }
         });
 
-        // Initialiser le type de destination et les champs d'assurance
-        typeDestinationSelect.dispatchEvent(new Event('change'));
+        // Calcul initial
         calculerCoutAssurance();
     });
 </script>

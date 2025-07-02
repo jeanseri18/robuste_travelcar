@@ -207,37 +207,12 @@
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <button type="button" 
-                                                class="btn btn-outline-danger btn-sm rounded-pill" 
+                                                class="btn btn-outline-danger btn-sm rounded-pill delete-btn" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteModal{{ $user->id }}"
                                                 title="Supprimer">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </div>
-
-                                    <!-- Delete Modal -->
-                                    <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $user->id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel{{ $user->id }}">Confirmation de suppression</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ $user->nom }} {{ $user->prenom }}</strong> ?
-                                                    <br>
-                                                    Cette action est irréversible.
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -248,6 +223,33 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Modals -->
+@foreach($users as $user)
+    <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $user->id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ $user->id }}">Confirmation de suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ $user->nom }} {{ $user->prenom }}</strong> ?
+                    <br>
+                    Cette action est irréversible.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection
 @push('styles')
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-2.1.8/b-3.2.0/b-colvis-3.2.0/b-html5-3.2.0/b-print-3.2.0/r-3.0.3/datatables.min.css" rel="stylesheet">
@@ -280,8 +282,29 @@
     .btn {
         transition: all 0.2s ease;
     }
+    
+    /* Animation normale pour tous les boutons sauf ceux qui déclenchent des modals */
     .btn:hover {
         transform: translateY(-1px);
+    }
+    
+    /* Désactiver l'animation pour les boutons de suppression (modals) */
+    .delete-btn:hover {
+        transform: none !important;
+    }
+    
+    /* Assurer la stabilité des modals */
+    .modal {
+        position: fixed !important;
+        z-index: 1055 !important;
+    }
+    
+    .modal-dialog {
+        transform: none !important;
+    }
+    
+    .modal-content {
+        transform: none !important;
     }
     .badge {
         font-size: 0.75em;

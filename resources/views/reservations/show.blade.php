@@ -110,18 +110,8 @@
                             <div class="mb-4">
                                 <h6 class="font-weight-bold">Informations du Client</h6>
                                 <p>
-                                    <strong>Nom:</strong> 
-                                    <a href="{{ route('users.show', $reservation->user->id) }}">
-                                        {{ $reservation->user->nom }} {{ $reservation->user->prenom }}
-                                    </a>
-                                </p>
-                                <p>
-                                    <strong>Email:</strong> 
-                                    <a href="mailto:{{ $reservation->user->email }}">{{ $reservation->user->email }}</a>
-                                </p>
-                                <p>
-                                    <strong>Téléphone:</strong> 
-                                    <a href="tel:{{ $reservation->user->contact_telephone }}">{{ $reservation->user->contact_telephone }}</a>
+                                    <strong>Nom du Client:</strong> 
+                                    {{ $reservation->nom_client }}
                                 </p>
                                 
                                 @if($reservation->nom_voyageur || $reservation->contact_voyageur)

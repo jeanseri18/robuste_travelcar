@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('regime_imposition')->nullable();
             $table->string('centre_impots')->nullable();
             $table->string('compte_bancaire')->nullable();
+            $table->enum('type', ['national', 'sousregional'])->default('national');
             $table->timestamps();
         });
     }

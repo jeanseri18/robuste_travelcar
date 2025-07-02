@@ -10,7 +10,7 @@ class Reservation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'nom_client',
         'type_destination',
         'destination_id',
         'societe_id',
@@ -24,12 +24,11 @@ class Reservation extends Model
         'assurance_voyageur',
         'assurance_bagages',
         'cout_assurance',
-        'statut',
-        'statut_paiement',
-        'code_reservation',
         'nom_voyageur',
         'contact_voyageur',
-        'commentaire'
+        'commentaire',
+        'statut',
+        'code_reservation'
     ];
 
     protected $casts = [
@@ -59,10 +58,7 @@ class Reservation extends Model
     /**
      * Get the user who made the reservation
      */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // Relation user supprimée car nous utilisons maintenant nom_client
 
     /**
      * Get the societe for the reservation

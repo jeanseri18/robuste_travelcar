@@ -61,8 +61,8 @@
         color: white;
     }
 
-    .brand-title {
-        font-size: 1.2rem;
+    . text-white {
+         text-whitefont-size: 1.2rem;
         font-weight: 700;
         line-height: 1.2;
         margin: 0;
@@ -349,8 +349,8 @@
                 <div class="brand-container">
                     <img src="{{ asset('logo.png') }}" alt="Logo" class="brand-logo">
                     <div class="brand-text">
-                        <div class="brand-title">TravelCar</div>
-                        <div class="brand-subtitle">Admin Panel</div>
+                        <div class="brand-title text-white">TravelCar</div>
+                        <div class="brand-subtitle text-white">Admin Panel</div>
                     </div>
                 </div>
             </div>

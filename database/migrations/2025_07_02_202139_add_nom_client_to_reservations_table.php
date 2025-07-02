@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('societes', function (Blueprint $table) {
-            $table->enum('type', ['national', 'sousregional'])->default('national')->after('nom_commercial');
+        Schema::table('reservations', function (Blueprint $table) {
+            $table->string('nom_client')->after('id');
+            $table->foreignId('user_id')->nullable()->change();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('societes', function (Blueprint $table) {
-            $table->dropColumn('type');
+        Schema::table('reservations', function (Blueprint $table) {
+            $table->dropColumn('nom_client');
+            $table->foreignId('user_id')->nullable(false)->change();
         });
     }
 };

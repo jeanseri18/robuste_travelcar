@@ -28,9 +28,26 @@ class ReservationController extends Controller
      */
     public function create()
     {
-        $societes = Societe::orderBy('nom_commercial')->get();
-        $users = User::where('type', 'Voyageur')->orderBy('nom')->get();
-        return view('reservations.create', compact('societes', 'users'));
+        $societes = Societe::with([
+            'gares' => function($query) {
+                $query->with([
+                    'destinationsNational' => function($subQuery) {
+                        $subQuery->with(['lieuDepart', 'lieuArrive']);
+                    },
+                    'destinationsSousRegion'
+                ]);
+            }
+        ])->get();
+        
+        // Ajouter les propriétés pour JavaScript tout en gardant les objets originaux
+        $societes->each(function($societe) {
+            $societe->gares->each(function($gare) {
+                $gare->destinations_national = $gare->destinationsNational;
+                $gare->destinations_sous_region = $gare->destinationsSousRegion;
+            });
+        });
+        
+        return view('reservations.create', compact('societes'));
     }
 
     /**
@@ -39,21 +56,21 @@ class ReservationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'nom_client' => 'required|string|max:255',
             'type_destination' => 'required|in:national,sousregion',
             'destination_id' => 'required|integer',
             'societe_id' => 'required|exists:societes,id',
             'gare_depart' => 'required|exists:gares,id',
-            'lieu_embarquement' => 'required|string|max:255',
+            'lieu_embarquement' => 'required|string',
             'date_depart' => 'required|date|after_or_equal:today',
-            'heure_depart' => 'required',
+            'heure_depart' => 'required|date_format:H:i',
             'tarif_unitaire' => 'required|numeric|min:0',
             'nombre_tickets' => 'required|integer|min:1',
             'assurance_voyageur' => 'boolean',
             'assurance_bagages' => 'boolean',
-            'cout_assurance' => 'nullable|numeric|min:0',
-            'nom_voyageur' => 'nullable|string|max:255',
-            'contact_voyageur' => 'nullable|string|max:255',
+            'nom_voyageur' => 'nullable|string',
+            'contact_voyageur' => 'nullable|string',
+            'commentaire' => 'nullable|string',
         ]);
 
         // Calculer le total
@@ -63,14 +80,26 @@ class ReservationController extends Controller
         }
 
         // Créer la réservation
-        $reservation = Reservation::create(array_merge(
-            $request->all(),
-            [
-                'total' => $total,
-                'statut' => 'en_attente',
-                'code_reservation' => 'TRAV-' . strtoupper(uniqid()),
-            ]
-        ));
+        $reservation = Reservation::create([
+            'nom_client' => $request->nom_client,
+            'type_destination' => $request->type_destination,
+            'destination_id' => $request->destination_id,
+            'societe_id' => $request->societe_id,
+            'gare_depart' => $request->gare_depart,
+            'lieu_embarquement' => $request->lieu_embarquement,
+            'date_depart' => $request->date_depart,
+            'heure_depart' => $request->heure_depart,
+            'tarif_unitaire' => $request->tarif_unitaire,
+            'nombre_tickets' => $request->nombre_tickets,
+            'total' => $total,
+            'assurance_voyageur' => $request->has('assurance_voyageur'),
+            'assurance_bagages' => $request->has('assurance_bagages'),
+            'nom_voyageur' => $request->nom_voyageur,
+            'contact_voyageur' => $request->contact_voyageur,
+            'commentaire' => $request->commentaire,
+            'statut' => 'en_attente',
+            'code_reservation' => 'TRAV-' . strtoupper(uniqid()),
+        ]);
 
         return redirect()->route('reservations.show', $reservation)
             ->with('success', 'Réservation créée avec succès.');
