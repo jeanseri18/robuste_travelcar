@@ -51,6 +51,21 @@
                                 @enderror
                             </div>
 
+                            <!-- Type -->
+                            <div class="col-md-6 mb-3">
+                                <label for="type" class="form-label">Type <span class="text-danger">*</span></label>
+                                <select class="form-select @error('type') is-invalid @enderror" name="type" id="type" required>
+                                    <option value="" disabled>Sélectionnez un type</option>
+                                    <option value="national" {{ old('type', $societe->type) == 'national' ? 'selected' : '' }}>National</option>
+                                    <option value="sousregional" {{ old('type', $societe->type) == 'sousregional' ? 'selected' : '' }}>Sous-régional</option>
+                                </select>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <!-- Forme juridique -->
                             <div class="col-md-6 mb-3">
                                 <label for="forme_juridique" class="form-label">Forme juridique</label>
@@ -65,6 +80,10 @@
                                 @error('forme_juridique')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            <!-- Placeholder pour équilibrer la ligne -->
+                            <div class="col-md-6 mb-3">
                             </div>
                         </div>
 

@@ -131,9 +131,17 @@ class SocieteController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->except('logo');
+        $data = $request->except(['logo', 'remove_logo']);
 
-        if ($request->hasFile('logo')) {
+        // Gérer la suppression du logo
+        if ($request->has('remove_logo') && $request->remove_logo == '1') {
+            if ($societe->logo) {
+                Storage::disk('public')->delete($societe->logo);
+            }
+            $data['logo'] = null;
+        }
+        // Gérer l'upload d'un nouveau logo
+        elseif ($request->hasFile('logo')) {
             // Supprimer l'ancien logo s'il existe
             if ($societe->logo) {
                 Storage::disk('public')->delete($societe->logo);
