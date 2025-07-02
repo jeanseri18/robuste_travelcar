@@ -205,110 +205,109 @@
             
             <!-- Destinations -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Destinations</h6>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Destinations 
+                        @if($societe->type === 'national')
+                            <span class="badge bg-success ms-2">Nationales</span>
+                        @else
+                            <span class="badge bg-info ms-2">Sous-régionales</span>
+                        @endif
+                    </h6>
+                    @if($societe->type === 'national')
+                        <a href="{{ route('destinations_national.create', ['societe' => $societe->id]) }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-plus-circle"></i> Ajouter destination nationale
+                        </a>
+                    @else
+                        <a href="{{ route('destinations_sousregion.create', ['societe' => $societe->id]) }}" class="btn btn-sm btn-info">
+                            <i class="bi bi-plus-circle"></i> Ajouter destination sous-régionale
+                        </a>
+                    @endif
                 </div>
                 <div class="card-body">
-                    <ul class="nav nav-tabs" id="destinationsTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="national-tab" data-bs-toggle="tab" data-bs-target="#national-tab-pane" type="button" role="tab" aria-controls="national-tab-pane" aria-selected="true">
-                                Nationales
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="sousregion-tab" data-bs-toggle="tab" data-bs-target="#sousregion-tab-pane" type="button" role="tab" aria-controls="sousregion-tab-pane" aria-selected="false">
-                                Sous-régionales
-                            </button>
-                        </li>
-                    </ul>
-                    
-                    <div class="tab-content pt-4" id="destinationsTabContent">
+                    @if($societe->type === 'national')
                         <!-- Destinations nationales -->
-                        <div class="tab-pane fade show active" id="national-tab-pane" role="tabpanel" aria-labelledby="national-tab" tabindex="0">
-                            @if($societe->destinationsNational->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" id="destinationsNationalTable" width="100%" cellspacing="0">
-                                        <thead>
+                        @if($societe->destinationsNational->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="destinationsTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Gare</th>
+                                            <th>Itinéraire</th>
+                                            <th>Tarif</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($societe->destinationsNational as $destination)
                                             <tr>
-                                                <th>Gare</th>
-                                                <th>Itinéraire</th>
-                                                <th>Tarif</th>
-                                                <th>Actions</th>
+                                                <td>{{ $destination->gareDepart->nom_gare ?? 'Non spécifié' }}</td>
+                                                <td>
+                                                    @if($destination->lieuDepart && $destination->lieuArrive)
+                                                        {{ $destination->lieuDepart->ville }} → {{ $destination->lieuArrive->ville }}
+                                                    @else
+                                                        Itinéraire incomplet
+                                                    @endif
+                                                </td>
+                                                <td>{{ number_format($destination->tarif_unitaire, 0, ',', ' ') }} CFA</td>
+                                                <td>
+                                                    <a href="{{ route('destinations_national.show', $destination->id) }}" class="btn btn-info btn-sm">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($societe->destinationsNational as $destination)
-                                                <tr>
-                                                    <td>{{ $destination->gareDepart->nom_gare ?? 'Non spécifié' }}</td>
-                                                    <td>
-                                                        @if($destination->lieuDepart && $destination->lieuArrive)
-                                                            {{ $destination->lieuDepart->ville }} → {{ $destination->lieuArrive->ville }}
-                                                        @else
-                                                            Itinéraire incomplet
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ number_format($destination->tarif_unitaire, 0, ',', ' ') }} CFA</td>
-                                                    <td>
-                                                        <a href="{{ route('destinations_national.show', $destination->id) }}" class="btn btn-info btn-sm">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="bi bi-map" style="font-size: 3rem; color: #ccc;"></i>
-                                    <p class="mt-3">Aucune destination nationale enregistrée pour cette société.</p>
-                                    <a href="{{ route('destinations_national.create', ['societe' => $societe->id]) }}" class="btn btn-primary mt-2">
-                                        <i class="bi bi-plus-circle"></i> Ajouter une destination nationale
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                        
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="bi bi-map" style="font-size: 3rem; color: #28a745;"></i>
+                                <p class="mt-3">Aucune destination nationale enregistrée pour cette société.</p>
+                                <a href="{{ route('destinations_national.create', ['societe' => $societe->id]) }}" class="btn btn-success mt-2">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une destination nationale
+                                </a>
+                            </div>
+                        @endif
+                    @else
                         <!-- Destinations sous-régionales -->
-                        <div class="tab-pane fade" id="sousregion-tab-pane" role="tabpanel" aria-labelledby="sousregion-tab" tabindex="0">
-                            @if($societe->destinationsSousRegion->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" id="destinationsSousRegionTable" width="100%" cellspacing="0">
-                                        <thead>
+                        @if($societe->destinationsSousRegion->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="destinationsTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Gare</th>
+                                            <th>Destination</th>
+                                            <th>Tarif</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($societe->destinationsSousRegion as $destination)
                                             <tr>
-                                                <th>Gare</th>
-                                                <th>Destination</th>
-                                                <th>Tarif</th>
-                                                <th>Actions</th>
+                                                <td>{{ $destination->gareDepart->nom_gare ?? 'Non spécifié' }}</td>
+                                                <td>{{ $destination->pays_destination }} - {{ $destination->ville_destination }}</td>
+                                                <td>{{ number_format($destination->tarif_unitaire, 0, ',', ' ') }} CFA</td>
+                                                <td>
+                                                    <a href="{{ route('destinations_sousregion.show', $destination->id) }}" class="btn btn-info btn-sm">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($societe->destinationsSousRegion as $destination)
-                                                <tr>
-                                                    <td>{{ $destination->gareDepart->nom_gare ?? 'Non spécifié' }}</td>
-                                                    <td>{{ $destination->pays_destination }} - {{ $destination->ville_destination }}</td>
-                                                    <td>{{ number_format($destination->tarif_unitaire, 0, ',', ' ') }} CFA</td>
-                                                    <td>
-                                                        <a href="{{ route('destinations_sousregion.show', $destination->id) }}" class="btn btn-info btn-sm">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="bi bi-globe" style="font-size: 3rem; color: #ccc;"></i>
-                                    <p class="mt-3">Aucune destination sous-régionale enregistrée pour cette société.</p>
-                                    <a href="{{ route('destinations_sousregion.create', ['societe' => $societe->id]) }}" class="btn btn-primary mt-2">
-                                        <i class="bi bi-plus-circle"></i> Ajouter une destination sous-régionale
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="bi bi-globe" style="font-size: 3rem; color: #17a2b8;"></i>
+                                <p class="mt-3">Aucune destination sous-régionale enregistrée pour cette société.</p>
+                                <a href="{{ route('destinations_sousregion.create', ['societe' => $societe->id]) }}" class="btn btn-info mt-2">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une destination sous-régionale
+                                </a>
+                            </div>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
@@ -373,16 +372,7 @@
             lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Tous"]]
         });
         
-        $('#destinationsNationalTable').DataTable({
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
-            },
-            responsive: true,
-            pageLength: 5,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Tous"]]
-        });
-        
-        $('#destinationsSousRegionTable').DataTable({
+        $('#destinationsTable').DataTable({
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
             },

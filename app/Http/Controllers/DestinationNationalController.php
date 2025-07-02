@@ -26,7 +26,7 @@ class DestinationNationalController extends Controller
      */
     public function create()
     {
-        $societes = Societe::orderBy('nom_commercial')->get();
+        $societes = Societe::national()->orderBy('nom_commercial')->get();
         $lieux_depart = Lieu::where('typedestination', 'national')
                            ->where(function($query) {
                                $query->where('type', 'depart')
@@ -83,7 +83,7 @@ class DestinationNationalController extends Controller
      */
     public function edit(DestinationNational $destinationsNational)
     {
-        $societes = Societe::orderBy('nom_commercial')->get();
+        $societes = Societe::national()->orderBy('nom_commercial')->get();
         $gares = Gare::where('societe_id', $destinationsNational->societe_id)->get();
         $lieux_depart = Lieu::where('typedestination', 'national')
                            ->where(function($query) {

@@ -50,7 +50,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     
-    // Sociétés
+    // Sociétés - Routes spécifiques AVANT les routes avec paramètres
+    // Sociétés Nationales
+    Route::get('societes/national', [SocieteController::class, 'indexNational'])->name('societes.national');
+    Route::get('societes/national_create', [SocieteController::class, 'createNational'])->name('societes.national.create');
+    
+    // Sociétés Sous-Régionales
+    Route::get('societes/sousregional', [SocieteController::class, 'indexSousRegional'])->name('societes.sousregional');
+    Route::get('societes/sousregional_create', [SocieteController::class, 'createSousRegional'])->name('societes.sousregional.create');
+    
+    // Sociétés - Routes générales
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
     Route::get('societes_create', [SocieteController::class, 'create'])->name('societes.create');
     Route::post('societes', [SocieteController::class, 'store'])->name('societes.store');

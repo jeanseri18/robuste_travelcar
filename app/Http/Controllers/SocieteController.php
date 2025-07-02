@@ -19,11 +19,45 @@ class SocieteController extends Controller
     }
 
     /**
+     * Display a listing of national societes.
+     */
+    public function indexNational()
+    {
+        $societes = Societe::national()->orderBy('nom_commercial')->get();
+        return view('societes.national', compact('societes'));
+    }
+
+    /**
+     * Display a listing of sous-regional societes.
+     */
+    public function indexSousRegional()
+    {
+        $societes = Societe::sousRegional()->orderBy('nom_commercial')->get();
+        return view('societes.sousregional', compact('societes'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
         return view('societes.create');
+    }
+
+    /**
+     * Show the form for creating a new national societe.
+     */
+    public function createNational()
+    {
+        return view('societes.create-national');
+    }
+
+    /**
+     * Show the form for creating a new sous-regional societe.
+     */
+    public function createSousRegional()
+    {
+        return view('societes.create-sousregional');
     }
 
     /**
@@ -33,6 +67,7 @@ class SocieteController extends Controller
     {
         $request->validate([
             'nom_commercial' => 'required|string|max:255',
+            'type' => 'required|in:national,sousregional',
             'forme_juridique' => 'nullable|string|max:255',
             'siege_social' => 'nullable|string|max:255',
             'date_creation' => 'nullable|date',
@@ -82,6 +117,7 @@ class SocieteController extends Controller
     {
         $request->validate([
             'nom_commercial' => 'required|string|max:255',
+            'type' => 'required|in:national,sousregional',
             'forme_juridique' => 'nullable|string|max:255',
             'siege_social' => 'nullable|string|max:255',
             'date_creation' => 'nullable|date',

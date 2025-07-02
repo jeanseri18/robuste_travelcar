@@ -26,7 +26,7 @@ class DestinationSousRegionController extends Controller
      */
     public function create()
     {
-        $societes = Societe::orderBy('nom_commercial')->get();
+        $societes = Societe::sousRegional()->orderBy('nom_commercial')->get();
         $pays = $this->getPaysSousRegion();
         return view('destinations_sousregion.create', compact('societes', 'pays'));
     }
@@ -70,7 +70,7 @@ class DestinationSousRegionController extends Controller
      */
     public function edit(DestinationSousRegion $destinationsSousregion)
     {
-        $societes = Societe::orderBy('nom_commercial')->get();
+        $societes = Societe::sousRegional()->orderBy('nom_commercial')->get();
         $gares = Gare::where('societe_id', $destinationsSousregion->societe_id)->get();
         $pays = $this->getPaysSousRegion();
         

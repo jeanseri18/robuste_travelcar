@@ -193,6 +193,56 @@
     .nav-item:nth-child(4) { animation-delay: 0.4s; }
     .nav-item:nth-child(5) { animation-delay: 0.5s; }
 
+    /* Submenu Styles */
+    .nav-item.has-submenu .submenu-arrow {
+        margin-left: auto;
+        transition: transform 0.3s ease;
+        font-size: 0.8rem;
+    }
+
+    .nav-item.has-submenu .nav-link[aria-expanded="true"] .submenu-arrow {
+        transform: rotate(180deg);
+    }
+
+    .nav-submenu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.2);
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        margin-left: 1rem;
+    }
+
+    .nav-submenu .nav-item {
+        margin-bottom: 1px;
+    }
+
+    .nav-submenu .nav-link {
+        padding: 0.6rem 1rem 0.6rem 2rem;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        border-radius: 0;
+    }
+
+    .nav-submenu .nav-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+        transform: translateX(3px);
+    }
+
+    .nav-submenu .nav-link.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        border-left: 3px solid #ffffff;
+    }
+
+    .nav-submenu .nav-link i {
+        margin-right: 8px;
+        font-size: 0.8rem;
+        width: 16px;
+        text-align: center;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .modern-sidebar {
@@ -319,13 +369,36 @@
                                 <span class="nav-text">Tableau de bord</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ route('societes.index') }}" class="nav-link {{ request()->routeIs('societes.*') ? 'active' : '' }}">
+                        <li class="nav-item has-submenu">
+                            <a href="#" class="nav-link {{ request()->routeIs('societes.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#societesSubmenu" aria-expanded="{{ request()->routeIs('societes.*') ? 'true' : 'false' }}">
                                 <div class="nav-icon-wrapper">
                                     <i class="bi bi-building"></i>
                                 </div>
                                 <span class="nav-text">Sociétés de transport</span>
+                                <i class="bi bi-chevron-down submenu-arrow"></i>
                             </a>
+                            <div class="collapse {{ request()->routeIs('societes.*') ? 'show' : '' }}" id="societesSubmenu">
+                                <ul class="nav-submenu">
+                                    <li class="nav-item">
+                                        <a href="{{ route('societes.index') }}" class="nav-link {{ request()->routeIs('societes.index') ? 'active' : '' }}">
+                                            <i class="bi bi-list-ul"></i>
+                                            <span class="nav-text">Toutes les sociétés</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('societes.national') }}" class="nav-link {{ request()->routeIs('societes.national') ? 'active' : '' }}">
+                                            <i class="bi bi-flag text-success"></i>
+                                            <span class="nav-text">Sociétés nationales</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('societes.sousregional') }}" class="nav-link {{ request()->routeIs('societes.sousregional') ? 'active' : '' }}">
+                                            <i class="bi bi-globe text-primary"></i>
+                                            <span class="nav-text">Sociétés sous-régionales</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('societes.garesAll') }}" class="nav-link {{ request()->routeIs('societes.garesAll') ? 'active' : '' }}">

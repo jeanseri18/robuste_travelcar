@@ -11,6 +11,7 @@ class Societe extends Model
 
     protected $fillable = [
         'nom_commercial',
+        'type',
         'forme_juridique',
         'siege_social',
         'date_creation',
@@ -82,5 +83,21 @@ class Societe extends Model
             return asset('storage/' . $this->logo);
         }
         return asset('images/default-logo.png');
+    }
+
+    /**
+     * Scope pour filtrer les sociétés nationales
+     */
+    public function scopeNational($query)
+    {
+        return $query->where('type', 'national');
+    }
+
+    /**
+     * Scope pour filtrer les sociétés sous-régionales
+     */
+    public function scopeSousRegional($query)
+    {
+        return $query->where('type', 'sousregional');
     }
 }
