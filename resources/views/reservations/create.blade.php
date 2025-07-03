@@ -30,6 +30,7 @@
                         @enderror
                     </div>
 
+<!-- -->
                     <!-- Type de destination -->
                     <div class="col-md-6 mb-3">
                         <label for="type_destination" class="form-label">Type de destination <span class="text-danger">*</span></label>
